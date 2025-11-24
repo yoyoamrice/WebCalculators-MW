@@ -10,6 +10,7 @@
     <li><a href="hello">My First Web Calculator</a></li>
     <li><a href="fraction">Marc's Fraction Calculator</a></li>
     <li><a href="ingredient">Edward's Ingredient Calculator</a></li>
+    <li><a href="CharacterFighter">Gabe's Character Fighter Calculator</a></li>
 </ul>
 
 </body>

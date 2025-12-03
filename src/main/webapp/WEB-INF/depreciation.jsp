@@ -49,7 +49,7 @@
         <select name="operation" id="operation">
             <option value="annual" ${param.operation == 'annual' ? 'selected' : ''}>Annual Depreciation</option>
             <option value="accumulated" ${param.operation == 'accumulated' ? 'selected' : ''}>Accumulated Depreciation</option>
-            <option value="itemValue" ${param.operation == 'itemValue' ? 'selected' : ''}>Item Value (Book Value)</option>
+            <option value="itemValue" ${param.operation == 'itemValue' ? 'selected' : ''}>Item Value</option>
         </select>
     </div>
 

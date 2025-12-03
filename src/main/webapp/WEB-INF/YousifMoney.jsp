@@ -24,6 +24,9 @@
         <div class = "col-3">
             <label for="money1Amount" class="form-label">Money Amount</label>
             <input type="text" class="form-control" id="money1Amount" name = "money1Amount"/>
+            <ul class="text-danger">
+                ${money1AmountError}
+            </ul>
             <label for="money1Currency" class="form-label">Money Currency</label>
             <select class="form-select" name = "money1Currency" id = "money1Currency">
                 <option selected>Open this select menu</option>
@@ -31,6 +34,9 @@
                 <option value="CAD">Canadian Dollar</option>
                 <option value="GPB">Great Britain Pound</option>
             </select>
+            <ul class="text-danger">
+                ${money1CurrencyError}
+            </ul>
         </div>
         <div class = "col-3">
             <label for="operator" class="form-label">choice operation</label>
@@ -41,10 +47,16 @@
                 <option value="divide">/</option>
                 <option value="multiply">*</option>
             </select>
+            <ul class="text-danger">
+                ${operatorError}
+            </ul>
         </div>
         <div class = "col-3">
             <label for="money2Amount" class="form-label">Money Amount</label>
             <input type="text" class="form-control" id="money2Amount" name = "money2Amount"/>
+            <ul class="text-danger">
+                ${money2AmountError}
+            </ul>
             <label for="money2Currency" class="form-label">Money Currency</label>
             <select class="form-select" name = "money2Currency" id = "money2Currency">
                 <option selected>Open this select menu</option>
@@ -52,19 +64,16 @@
                 <option value="CAD">Canadian Dollar</option>
                 <option value="GPB">Great Britain Pound</option>
             </select>
+            <ul class="text-danger">
+                ${money2CurrencyError}
+            </ul>
         </div>
     </div>
     <button type = "submit" value = "submit" class = "btn btn-primary">
 Submit
     </button>
 </form>
-    <ul class="text-danger">
-        ${money1AmountError}
-        ${money1CurrencyError}
-        ${operatorError}
-        ${money2AmountError}
-        ${money2CurrencyError}
-    </ul>
+
     <div class="text-success fs-1">${result}</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>

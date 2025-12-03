@@ -42,12 +42,12 @@ public class MoneyServlet extends HttpServlet {
             errorsFound = true;
             req.setAttribute("money1AmountError", "<li>money1Amount 1 is not a valid integer</li>");
         }
-        if(money1Currency == null || money1Currency.isEmpty()) {
+        if(money1Currency.equals("Open this select menu")) {
             errorsFound = true;
             req.setAttribute("money1CurrencyError", "<li>money1Currency 1 is required</li>");
 
         }
-        if(operator == null || !operator.matches("(add|subtract|multiply|divide)")) {
+        if(operator.equals("Open this select menu")) {
             errorsFound = true;
             req.setAttribute("operatorError", "<li>Operator is invalid</li>");
         }
@@ -58,7 +58,7 @@ public class MoneyServlet extends HttpServlet {
             errorsFound = true;
             req.setAttribute("money2AmountError", "<li>money2Amount 2 is not a valid integer</li>");
         }
-        if(money2Currency == null || money2Currency.isEmpty()) {
+        if(money2Currency.equals("Open this select menu")) {
             errorsFound = true;
             req.setAttribute("money2CurrencyError", "<li>money2Currency 2 is required</li>");
 

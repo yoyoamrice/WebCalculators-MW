@@ -11,6 +11,7 @@
     <li><a href="fraction">Marc's Fraction Calculator</a></li>
     <li><a href="ingredient">Edward's Ingredient Calculator</a></li>
     <li><a href="CharacterFighter">Gabe's Character Fighter Calculator</a></li>
+    <li><a href="setcalculator">Blake's Set Calculator</a></li>
 </ul>
 
 </body>

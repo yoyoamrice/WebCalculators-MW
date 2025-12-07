@@ -133,4 +133,14 @@ public class Helpers {
         return (date.isEqual(startDate) || date.isAfter(startDate)) &&
                 (date.isEqual(endDate) || date.isBefore(endDate));
     }
+
+    // Lawson
+    public static boolean isValidDouble(String s) {
+        try {
+            Double.parseDouble(s);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

@@ -1,4 +1,4 @@
-// file: /src/main/java/edu/kirkwood/controller/IngredientServlet.java v1 - Initial servlet for ingredient calculator
+// file: /src/main/java/edu/kirkwood/controller/IngredientServlet.java v2 - Enhanced result display, subtraction uses same ingredient
 
 package edu.kirkwood.controller;
 
@@ -52,22 +52,25 @@ public class IngredientServlet extends HttpServlet {
 
         // Validate first ingredient name
         if (!Helpers.isValidString(name1) || name1.trim().isEmpty()) {
-            req.setAttribute("name1Error", "<li>First ingredient name is required</li>");
+            req.setAttribute("name1Error", "First ingredient name is required");
             hasErrors = true;
         }
 
         // Validate first ingredient quantity
         double quantity1 = 0;
         if (!Helpers.isValidNumber(quantity1Str)) {
-            req.setAttribute("quantity1Error", "<li>First quantity must be a valid number</li>");
+            req.setAttribute("quantity1Error", "First quantity must be a valid number");
             hasErrors = true;
         } else {
             quantity1 = Double.parseDouble(quantity1Str);
-            if (quantity1 < -999999.999 || quantity1 > 999999.999) {
-                req.setAttribute("quantity1Error", "<li>First quantity must be between -999999.999 and 999999.999</li>");
+            if (quantity1 <= 0) {
+                req.setAttribute("quantity1Error", "Quantity must be a positive number");
                 hasErrors = true;
-            } else if (Math.abs(quantity1) < 0.001 && quantity1 != 0) {
-                req.setAttribute("quantity1Error", "<li>Non-zero quantity must be at least 0.001 in absolute value</li>");
+            } else if (quantity1 > 999999.999) {
+                req.setAttribute("quantity1Error", "Quantity must be 999999.999 or less");
+                hasErrors = true;
+            } else if (quantity1 < 0.001) {
+                req.setAttribute("quantity1Error", "Quantity must be at least 0.001");
                 hasErrors = true;
             }
         }
@@ -75,40 +78,45 @@ public class IngredientServlet extends HttpServlet {
         // Validate first ingredient unit
         Unit unit1 = parseUnit(unit1Str);
         if (unit1 == null) {
-            req.setAttribute("unit1Error", "<li>First unit is invalid. Use: tsp, tbsp, fl oz, cup, pint, quart, oz, lb, g, kg</li>");
+            req.setAttribute("unit1Error", "First unit is invalid. Use: tsp, tbsp, fl oz, cup, pint, quart, oz, lb, g, kg");
             hasErrors = true;
         }
 
         // Validate operator
         if (!Helpers.isValidString(operator)) {
-            req.setAttribute("operatorError", "<li>Operation is required</li>");
+            req.setAttribute("operatorError", "Operation is required");
             hasErrors = true;
         } else if (!operator.equals("add") && !operator.equals("subtract") &&
                 !operator.equals("multiply") && !operator.equals("divide")) {
-            req.setAttribute("operatorError", "<li>Invalid operation</li>");
+            req.setAttribute("operatorError", "Invalid operation");
             hasErrors = true;
         }
 
         // For add/subtract operations, validate second ingredient
         if (operator != null && (operator.equals("add") || operator.equals("subtract"))) {
-            // Validate second ingredient name
-            if (!Helpers.isValidString(name2) || name2.trim().isEmpty()) {
-                req.setAttribute("name2Error", "<li>Second ingredient name is required for addition/subtraction</li>");
-                hasErrors = true;
+            // Validate second ingredient name (only for add, not subtract)
+            if (operator.equals("add")) {
+                if (!Helpers.isValidString(name2) || name2.trim().isEmpty()) {
+                    req.setAttribute("name2Error", "Second ingredient name is required for addition");
+                    hasErrors = true;
+                }
             }
 
             // Validate second ingredient quantity
             double quantity2 = 0;
             if (!Helpers.isValidNumber(quantity2Str)) {
-                req.setAttribute("quantity2Error", "<li>Second quantity must be a valid number</li>");
+                req.setAttribute("quantity2Error", "Quantity must be a valid number");
                 hasErrors = true;
             } else {
                 quantity2 = Double.parseDouble(quantity2Str);
-                if (quantity2 < -999999.999 || quantity2 > 999999.999) {
-                    req.setAttribute("quantity2Error", "<li>Second quantity must be between -999999.999 and 999999.999</li>");
+                if (quantity2 <= 0) {
+                    req.setAttribute("quantity2Error", "Quantity must be a positive number");
                     hasErrors = true;
-                } else if (Math.abs(quantity2) < 0.001 && quantity2 != 0) {
-                    req.setAttribute("quantity2Error", "<li>Non-zero quantity must be at least 0.001 in absolute value</li>");
+                } else if (quantity2 > 999999.999) {
+                    req.setAttribute("quantity2Error", "Quantity must be 999999.999 or less");
+                    hasErrors = true;
+                } else if (quantity2 < 0.001) {
+                    req.setAttribute("quantity2Error", "Quantity must be at least 0.001");
                     hasErrors = true;
                 }
             }
@@ -116,7 +124,7 @@ public class IngredientServlet extends HttpServlet {
             // Validate second ingredient unit
             Unit unit2 = parseUnit(unit2Str);
             if (unit2 == null) {
-                req.setAttribute("unit2Error", "<li>Second unit is invalid. Use: tsp, tbsp, fl oz, cup, pint, quart, oz, lb, g, kg</li>");
+                req.setAttribute("unit2Error", "Second unit is invalid. Use: tsp, tbsp, fl oz, cup, pint, quart, oz, lb, g, kg");
                 hasErrors = true;
             }
         }
@@ -124,15 +132,15 @@ public class IngredientServlet extends HttpServlet {
         // For multiply/divide operations, validate scalar
         if (operator != null && (operator.equals("multiply") || operator.equals("divide"))) {
             if (!Helpers.isValidNumber(scalarStr)) {
-                req.setAttribute("scalarError", "<li>Scalar value must be a valid number</li>");
+                req.setAttribute("scalarError", "Scalar value must be a valid number");
                 hasErrors = true;
             } else {
                 double scalar = Double.parseDouble(scalarStr);
                 if (operator.equals("divide") && scalar == 0) {
-                    req.setAttribute("scalarError", "<li>Cannot divide by zero</li>");
+                    req.setAttribute("scalarError", "Cannot divide by zero");
                     hasErrors = true;
                 } else if (scalar <= 0) {
-                    req.setAttribute("scalarError", "<li>Scalar must be positive</li>");
+                    req.setAttribute("scalarError", "Scalar must be positive");
                     hasErrors = true;
                 }
             }
@@ -149,14 +157,19 @@ public class IngredientServlet extends HttpServlet {
                         double quantity2Add = Double.parseDouble(quantity2Str);
                         Unit unit2Add = parseUnit(unit2Str);
                         Ingredient ingredient2Add = new Ingredient(name2.trim(), quantity2Add, unit2Add);
-                        result = ingredient1.add(ingredient2Add);
+                        Ingredient addResult = ingredient1.add(ingredient2Add);
+                        // Create result with combined name
+                        result = new Ingredient(name1.trim() + " & " + name2.trim() + " mixture", addResult.getQuantity(), addResult.getUnit());
                         break;
 
                     case "subtract":
                         double quantity2Sub = Double.parseDouble(quantity2Str);
                         Unit unit2Sub = parseUnit(unit2Str);
-                        Ingredient ingredient2Sub = new Ingredient(name2.trim(), quantity2Sub, unit2Sub);
-                        result = ingredient1.subtract(ingredient2Sub);
+                        // For subtraction, use the first ingredient's name (subtracting from same ingredient)
+                        Ingredient ingredient2Sub = new Ingredient(name1.trim() + " (used)", quantity2Sub, unit2Sub);
+                        Ingredient subtractResult = ingredient1.subtract(ingredient2Sub);
+                        // Create a cleaner result with "remaining" label
+                        result = new Ingredient(name1.trim() + " remaining", subtractResult.getQuantity(), subtractResult.getUnit());
                         break;
 
                     case "multiply":
@@ -173,14 +186,48 @@ public class IngredientServlet extends HttpServlet {
                 }
 
                 if (result != null) {
-                    String resultStr = result.toString();
+                    String resultStr = "";
+                    String qty1Formatted = Helpers.round(quantity1, 3);
+
+                    switch (operator) {
+                        case "add":
+                            double qty2Add = Double.parseDouble(quantity2Str);
+                            String qty2AddFormatted = Helpers.round(qty2Add, 3);
+                            resultStr = String.format("%s %s %s + %s %s %s = %s",
+                                    qty1Formatted, unit1Str, name1.trim(),
+                                    qty2AddFormatted, unit2Str, name2.trim(),
+                                    result.toString());
+                            break;
+                        case "subtract":
+                            double qty2Sub = Double.parseDouble(quantity2Str);
+                            String qty2SubFormatted = Helpers.round(qty2Sub, 3);
+                            resultStr = String.format("%s %s %s − %s %s used = %s",
+                                    qty1Formatted, unit1Str, name1.trim(),
+                                    qty2SubFormatted, unit2Str,
+                                    result.toString());
+                            break;
+                        case "multiply":
+                            String scalarMult = Helpers.round(Double.parseDouble(scalarStr), 3);
+                            resultStr = String.format("%s %s %s × %s = %s",
+                                    qty1Formatted, unit1Str, name1.trim(),
+                                    scalarMult,
+                                    result.toString());
+                            break;
+                        case "divide":
+                            String scalarDiv = Helpers.round(Double.parseDouble(scalarStr), 3);
+                            resultStr = String.format("%s %s %s ÷ %s = %s",
+                                    qty1Formatted, unit1Str, name1.trim(),
+                                    scalarDiv,
+                                    result.toString());
+                            break;
+                    }
                     req.setAttribute("result", resultStr);
                 }
 
             } catch (IllegalArgumentException e) {
-                req.setAttribute("calculationError", "<li>Calculation error: " + e.getMessage() + "</li>");
+                req.setAttribute("calculationError", "Calculation error: " + e.getMessage());
             } catch (Exception e) {
-                req.setAttribute("calculationError", "<li>An unexpected error occurred</li>");
+                req.setAttribute("calculationError", "An unexpected error occurred");
             }
         }
 
@@ -199,48 +246,18 @@ public class IngredientServlet extends HttpServlet {
 
         String unit = unitStr.toLowerCase().trim();
 
-        switch(unit) {
-            case "tsp":
-            case "teaspoon":
-            case "teaspoons":
-                return Unit.TSP;
-            case "tbsp":
-            case "tablespoon":
-            case "tablespoons":
-                return Unit.TBSP;
-            case "fl oz":
-            case "floz":
-            case "fluid ounce":
-            case "fluid ounces":
-                return Unit.FL_OZ;
-            case "cup":
-            case "cups":
-                return Unit.CUP;
-            case "pint":
-            case "pints":
-                return Unit.PINT;
-            case "quart":
-            case "quarts":
-                return Unit.QUART;
-            case "oz":
-            case "ounce":
-            case "ounces":
-                return Unit.OZ;
-            case "lb":
-            case "lbs":
-            case "pound":
-            case "pounds":
-                return Unit.LB;
-            case "g":
-            case "gram":
-            case "grams":
-                return Unit.GRAM;
-            case "kg":
-            case "kilogram":
-            case "kilograms":
-                return Unit.KILOGRAM;
-            default:
-                return null;
-        }
+        return switch (unit) {
+            case "tsp", "teaspoon", "teaspoons" -> Unit.TSP;
+            case "tbsp", "tablespoon", "tablespoons" -> Unit.TBSP;
+            case "fl oz", "floz", "fluid ounce", "fluid ounces" -> Unit.FL_OZ;
+            case "cup", "cups" -> Unit.CUP;
+            case "pint", "pints" -> Unit.PINT;
+            case "quart", "quarts" -> Unit.QUART;
+            case "oz", "ounce", "ounces" -> Unit.OZ;
+            case "lb", "lbs", "pound", "pounds" -> Unit.LB;
+            case "g", "gram", "grams" -> Unit.GRAM;
+            case "kg", "kilogram", "kilograms" -> Unit.KILOGRAM;
+            default -> null;
+        };
     }
 }

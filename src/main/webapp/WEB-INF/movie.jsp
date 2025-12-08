@@ -15,13 +15,6 @@
         <div class="col-12">
             <h1>Movie Search</h1>
             <form method="GET">
-                <form action="/submit-form" method="post">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name">
-
-                    <input type="submit" value="Submit">
-                </form>
-
                 <div class="form-group mb-2">
                     <label for="num1">Enter a movie title:</label>
                     <input type="text" class="form-control">
